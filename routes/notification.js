@@ -3,19 +3,18 @@ var router = express.Router();
 
 var firebase = require("firebase");
 var admin = require("firebase-admin");
+var nombre_base_datos = "notifications_db"
 
 var serviceAccount = require("../notificaciones-github-6e24ead0d691.json");
 
-admin.initializeApp({
+firebase.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://notificaciones-github.firebaseio.com"
 });
 
-
-
 router
   .post('/', function(req, res, next) { // Post
-    console.log("Post1:", req.body.asunto);
+    //console.log("Post1:", req.body.asunto);
     if(!req.body.asunto || !req.body.usuario || !req.body.usuario ){
       res
         .status(400)
@@ -23,50 +22,65 @@ router
     }
 
     var asunto = req.body.asunto;
+    var contenido = req.body.contenido;
+    var usuario = req.body.usuario;
+    var leido = false;
+    var entregado = false;
+
     var db = firebase.database();
-    console.log(asunto);
-    var tokenDevices = db.ref("token_device").push()
+    var tokenDevices = db.ref(nombre_base_datos).push()
     tokenDevices.set({
-      token: asunto
+      asunto: asunto,
+      contenido: contenido,
+      usuario: usuario,
+      leido: leido,
+      entregado: entregado
     })
 
-    // Colocar en firebase
-    res
-      .status(201)
-      //.json({movie: Movie[_movie.id]})
-      //.json({ error: false, message: 'Noficacion creada satisfactoriamente'})
-      response.send(req.body.asunto);
-  })
-/*
-  .get('/', function(req, res, next) {
-    console.log("Post", req.body);
     res
       .status(200)
-      .json({movies:_.values(Movie)})
+      .json({ message: 'Notification creada satisfactoriamente'})
   })
-*/
-/*
-  .get('/:id', function(req, res, next) {
-    if(req.params.id){
-      res
-        .status(403)
-        .json({ error: true, message: 'Params empty'})
-    }
-    // retornar elemento correspondiente
-  })*/
+
   .put('/:id', function(req, res, next) {
     if(!req.params.id && !req.body){
       res
         .status(403)
-        .json({ error: true, message: 'Params empty'})
+        .json({ message: 'Params empty'})
     }
+
+    if(!req.body.asunto || !req.body.usuario || !req.body.usuario || !req.body.leido || !req.body.entregado ){
+      res
+        .status(400)
+        .json({message: 'Petición incorrecta'})
+    }
+    console.log("put:", req.body.asunto);
+
+    var db = firebase.database();
+    url_edicion = nombre_base_datos+"/"+req.params.id;
+    console.log(url_edicion);
+    var tokenDevices = db.ref(url_edicion)
+
+    var asunto = req.body.asunto;
+    var contenido = req.body.contenido;
+    var usuario = req.body.usuario;
+    var leido = false;
+    var entregado = false;
+
+    tokenDevices.set({
+      asunto: asunto,
+      contenido: contenido,
+      usuario: usuario,
+      leido: leido,
+      entregado: entregado
+    })
 
     // Actualizacion notificacion
     res
       .status(200)
-      .json({ error: false, message: 'Notificacion editada'})
+      .json({ message: 'Notificacion editada satisfactoriamente'})
   })
-
+/*
   .delete('/:id', function(req, res, next) {
     if(!req.params.id){
       res
@@ -77,13 +91,32 @@ router
     res
       .status(400) // 400??
       .json({})
-  })
+  })*/
 module.exports = router;
 
 
 
 
+/*
+  .get('/', function(req, res, next) {
+    console.log("Post", req.body);
+    res
+      .status(200)
+      .json({movies:_.values(Movie)})
+  })
 
+    //.json({ error: false, message: 'Noficacion creada satisfactoriamente'})
+
+*/
+/*
+  .get('/:id', function(req, res, next) {
+    if(req.params.id){
+      res
+        .status(403)
+        .json({ error: true, message: 'Params empty'})
+    }
+    // retornar elemento correspondiente
+  })*/
 
 
 
