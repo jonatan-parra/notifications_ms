@@ -6,7 +6,7 @@ var firebase = require("firebase");
 var admin = require("firebase-admin");
 var referencia_db = "registros"
 
-var serviceAccount = require("../notifications-db-283547e8e616.json");
+var serviceAccount = require("../database/notifications-db-283547e8e616.json");
 
 firebase.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -23,13 +23,14 @@ router
 
     var subject = req.body.subject;
     var content = req.body.content;
+    var id_user = req.body.id_user;
 
     var read = false;
     var delivered = false;
 
     var db = firebase.database();
-    var tokenDevices = db.ref(referencia_db).push()
-    tokenDevices.set({
+    var element1 = db.ref(referencia_db).push()
+    element1.set({
       subject: subject,
       content: content,
       id_user: id_user,
@@ -57,7 +58,7 @@ router
 
     var db = firebase.database();
     url_edicion = referencia_db+"/"+req.params.id_notification;
-    var tokenDevices = db.ref(url_edicion)
+    var element1 = db.ref(url_edicion)
 
     var subject = req.body.subject;
     var content = req.body.content;
@@ -65,7 +66,7 @@ router
     var delivered = req.body.delivered;
     var id_user = req.body.id_user;
 
-    tokenDevices.set({
+    element1.set({
       subject: subject,
       content: content,
       read: read,
